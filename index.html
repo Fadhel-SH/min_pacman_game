@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pacman Game</title>
+    <link rel="stylesheet" href="style/style.css">
+    <link rel="stylesheet" href="style/game.css">
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="header">
+                <span class="game-name">Pacman Game</span>
+                <!-- <button id="start-btn" class="game__control game__control--start">Start</button>
+                <button id="game.paused" class="game__control game__control--pause">Pause</button>
+                <button id="restart-btn" class="game__control game__control--restart">Restart</button> -->
+            </div>
+            <canvas id="game-canvas" width="400" height="400"></canvas>
+            <div class="game__info">
+                <div>Score: <span id="score">0</span></div>
+                <div>Level: <span id="level">1</span></div>
+                <div>Lives: <span id="lives">3</span></div>
+                <div>Speed: <span id="speed">5</span></div>
+                <div>Time Left: <span id="timeLeft">Infinity</span></div>
+            </div>
+            <div id="gameOver" style="display: none;">Game Over</div>
+        </div>
+    </div>
+
+    <script src="script/min_pacman_game.js"></script>
+</body>
+</html>

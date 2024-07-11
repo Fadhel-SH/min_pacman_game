@@ -2,7 +2,7 @@
 ![Pacman Min](./img/min_pacman.jpg)
 
 **Date:** 10/7/2024 **By:** Fadhel.SH  
-[Website](#) | [GitHub](https://github.com/Fadhel-SH/min_pacman_game) | [LinkedIn](#) | [Vettery](#)
+[Website](https://fadhel-sh.github.io/min_pacman_game/) | [GitHub](https://github.com/Fadhel-SH/min_pacman_game) | [LinkedIn](#) | [Vettery](#)
 
 ## Description
 A Pacman game developed using HTML, CSS, and JavaScript. The project includes classic gameplay elements, such as pellets, ghosts, bombs, and lives, with an added twist of ghosts changing direction and fleeing upon catching Pac-Man. The game features dynamic levels, increasing speed, and various power-ups. This project was created to demonstrate JavaScript game development skills.

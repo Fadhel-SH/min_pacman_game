@@ -43,11 +43,3 @@ To play the game:
 
 ## Author
 - [Fadhel.SH](https://github.com/Fadhel-SH)
-
-
-
-
-
-
-
-

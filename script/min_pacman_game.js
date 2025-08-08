@@ -1,3 +1,18 @@
+// --- TOUCH CONTROLS ---
+function setupTouchControls() {
+    const btnUp = document.getElementById('btn-up');
+    const btnDown = document.getElementById('btn-down');
+    const btnLeft = document.getElementById('btn-left');
+    const btnRight = document.getElementById('btn-right');
+    const btnRestart = document.getElementById('btn-restart');
+    if (btnUp) btnUp.addEventListener('click', () => { pacManDirection = 'up'; });
+    if (btnDown) btnDown.addEventListener('click', () => { pacManDirection = 'down'; });
+    if (btnLeft) btnLeft.addEventListener('click', () => { pacManDirection = 'left'; });
+    if (btnRight) btnRight.addEventListener('click', () => { pacManDirection = 'right'; });
+    if (btnRestart) btnRestart.addEventListener('click', () => { initGame(); });
+}
+
+window.addEventListener('DOMContentLoaded', setupTouchControls);
 // --- MAZE LAYOUTS ---
 const mazeLayouts = [
     // Level 1: simple border

@@ -1,3 +1,32 @@
+// --- MAZE LAYOUTS ---
+const mazeLayouts = [
+    // Level 1: simple border
+    [
+        {x: 0, y: 0, w: 400, h: 10}, // top
+        {x: 0, y: 390, w: 400, h: 10}, // bottom
+        {x: 0, y: 0, w: 10, h: 400}, // left
+        {x: 390, y: 0, w: 10, h: 400} // right
+    ],
+    // Level 2: border + center block
+    [
+        {x: 0, y: 0, w: 400, h: 10},
+        {x: 0, y: 390, w: 400, h: 10},
+        {x: 0, y: 0, w: 10, h: 400},
+        {x: 390, y: 0, w: 10, h: 400},
+        {x: 150, y: 150, w: 100, h: 100}
+    ]
+    // Add more layouts for higher levels
+];
+
+function getCurrentMaze() {
+    return mazeLayouts[Math.min(game.level - 1, mazeLayouts.length - 1)];
+}
+    // Draw maze walls
+    const maze = getCurrentMaze();
+    ctx.fillStyle = '#444';
+    for (let wall of maze) {
+        ctx.fillRect(wall.x, wall.y, wall.w, wall.h);
+    }
 // --- DESIGN CONSTANTS ---
 const PACMAN_COLOR = 'yellow';
 const PACMAN_RADIUS = 20;
@@ -287,6 +316,9 @@ function createPowerPellets(count) {
 
 // Update Pac-Man's movement
 function updatePacMan() {
+    // Save previous position
+    const prevX = pacManX;
+    const prevY = pacManY;
     switch (pacManDirection) {
         case 'right':
             pacManX += pacManSpeed;
@@ -300,6 +332,19 @@ function updatePacMan() {
         case 'down':
             pacManY += pacManSpeed;
             break;
+    }
+    // Maze collision: revert if hit wall
+    const maze = getCurrentMaze();
+    for (let wall of maze) {
+        if (
+            pacManX + PACMAN_RADIUS > wall.x &&
+            pacManX - PACMAN_RADIUS < wall.x + wall.w &&
+            pacManY + PACMAN_RADIUS > wall.y &&
+            pacManY - PACMAN_RADIUS < wall.y + wall.h
+        ) {
+            pacManX = prevX;
+            pacManY = prevY;
+        }
     }
 }
 

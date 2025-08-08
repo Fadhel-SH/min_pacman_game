@@ -1,7 +1,9 @@
 # Min Pacman Game
 ![Pacman Min](./img/min_pacman.jpg)
 
-**Date:** 10/7/2024 **By:** Fadhel.SH  
+**Version:** 2.0  
+**Last Edited:** 2025-08-08  
+**By:** Fadhel.SH  
 [Website](https://fadhel-sh.github.io/min_pacman_game/) | [GitHub](https://github.com/Fadhel-SH/min_pacman_game) | [LinkedIn](#) | [Vettery](#)
 
 ## Description

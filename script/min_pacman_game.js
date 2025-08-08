@@ -1,3 +1,16 @@
+// --- DESIGN CONSTANTS ---
+const PACMAN_COLOR = 'yellow';
+const PACMAN_RADIUS = 20;
+const PELLET_COLOR = 'green';
+const PELLET_RADIUS = 5;
+const POWER_PELLET_COLOR = 'white';
+const POWER_PELLET_RADIUS = 10;
+const BOMB_COLOR = 'red';
+const BOMB_RADIUS = 10;
+const LIVES_PELLET_COLOR = 'blue';
+const GHOST_COLOR = 'purple';
+const GHOST_EDIBLE_COLOR = 'blue';
+const GHOST_RADIUS = 15;
 /*-------------------------------- Constants --------------------------------*/
 const canvas = document.getElementById('game-canvas'); // Get the canvas element
 const ctx = canvas.getContext('2d'); // Get the 2D rendering context
@@ -28,6 +41,12 @@ let pacManDirection = 'right'; // Initial direction of Pac-Man
 
 let pellets = []; // Array to store pellets
 const pelletsCount = 50; // Number of pellets
+const powerPelletsCount = 3; // Number of power pellets
+let powerPellets = []; // Array to store power pellets
+const powerPelletRadius = 10;
+const powerPelletDuration = 5000; // ms ghosts are edible
+let ghostsEdible = false;
+let ghostsEdibleTimeout = null;
 
 let bombs = []; // Array to store bombs
 const bombsCount = 5; // Number of bombs
@@ -56,7 +75,7 @@ const bombSound = new Audio('sounds/boom.mp3');
 const lifeSound = new Audio('sounds/life.mp3');
 const levelUpSound = new Audio('sounds/level_up.mp3');
 const gameOverSound = new Audio('sounds/game_over.mp3');
-const ghostSound = new Audio('sounds/ghost.mp3');
+// Removed ghostSound (file missing)
 
 /*-------------------------------- Event Listeners --------------------------------*/
 
@@ -102,29 +121,37 @@ function drawGame() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // Draw Pac-Man
-    ctx.fillStyle = 'yellow';
+    ctx.fillStyle = PACMAN_COLOR;
     ctx.beginPath();
-    ctx.arc(pacManX, pacManY, 20, 0, 2 * Math.PI);
+    ctx.arc(pacManX, pacManY, PACMAN_RADIUS, 0, 2 * Math.PI);
     ctx.fill();
 
     // Draw the pellets
-    ctx.fillStyle = 'green';
+    ctx.fillStyle = PELLET_COLOR;
     for (let pellet of pellets) {
         ctx.beginPath();
-        ctx.arc(pellet.x, pellet.y, 5, 0, 2 * Math.PI);
+        ctx.arc(pellet.x, pellet.y, PELLET_RADIUS, 0, 2 * Math.PI);
+        ctx.fill();
+    }
+
+    // Draw power pellets
+    ctx.fillStyle = POWER_PELLET_COLOR;
+    for (let pp of powerPellets) {
+        ctx.beginPath();
+        ctx.arc(pp.x, pp.y, POWER_PELLET_RADIUS, 0, 2 * Math.PI);
         ctx.fill();
     }
 
     // Draw the bombs
-    ctx.fillStyle = 'red';
+    ctx.fillStyle = BOMB_COLOR;
     for (let bomb of bombs) {
         ctx.beginPath();
-        ctx.arc(bomb.x, bomb.y, 10, 0, 2 * Math.PI);
+        ctx.arc(bomb.x, bomb.y, BOMB_RADIUS, 0, 2 * Math.PI);
         ctx.fill();
     }
 
     // Draw the lives pellets
-    ctx.fillStyle = 'blue';
+    ctx.fillStyle = LIVES_PELLET_COLOR;
     for (let livesPellet of livesPellets) {
         ctx.beginPath();
         ctx.moveTo(livesPellet.x, livesPellet.y - 8);
@@ -136,11 +163,21 @@ function drawGame() {
     }
 
     // Draw the ghosts
-    ctx.fillStyle = 'purple';
     for (let ghost of ghosts) {
         ctx.beginPath();
-        ctx.arc(ghost.x, ghost.y, 15, 0, 2 * Math.PI);
+        ctx.fillStyle = ghostsEdible ? GHOST_EDIBLE_COLOR : GHOST_COLOR;
+        ctx.arc(ghost.x, ghost.y, GHOST_RADIUS, 0, 2 * Math.PI);
         ctx.fill();
+    }
+    // Check for collisions with power pellets
+    for (let i = 0; i < powerPellets.length; i++) {
+        let pp = powerPellets[i];
+        if (Math.hypot(pacManX - pp.x, pacManY - pp.y) < powerPelletRadius + 20) {
+            powerPellets.splice(i, 1);
+            ghostsEdible = true;
+            if (ghostsEdibleTimeout) clearTimeout(ghostsEdibleTimeout);
+            ghostsEdibleTimeout = setTimeout(() => { ghostsEdible = false; }, powerPelletDuration);
+        }
     }
 }
 
@@ -189,21 +226,45 @@ function updateGame() {
     for (let i = 0; i < ghosts.length; i++) {
         let ghost = ghosts[i];
         if (Math.hypot(pacManX - ghost.x, pacManY - ghost.y) < 20 && !ghost.fleeing) {
-            game.lives--;
-            ghost.fleeing = true;
-            ghost.fleeStartTime = Date.now();
-            ghostSound.play();
-            if (game.lives <= 0) {
-                endGame();
+            if (ghostsEdible) {
+                // Eat ghost for bonus points
+                game.score += 10;
+                // Respawn ghost at random position
+                ghost.x = Math.random() * canvas.width;
+                ghost.y = Math.random() * canvas.height;
+            } else {
+                game.lives--;
+                ghost.fleeing = true;
+                ghost.fleeStartTime = Date.now();
+                // ghostSound.play();
+                if (game.lives <= 0) {
+                    endGame();
+                }
             }
         }
     }
+    // Add more power pellets if all are eaten
+    if (powerPellets.length === 0) {
+        powerPellets = createPowerPellets(powerPelletsCount);
+    }
+// Create initial power pellets
+function createPowerPellets(count) {
+    const newPP = [];
+    for (let i = 0; i < count; i++) {
+        newPP.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height
+        });
+    }
+    return newPP;
+}
 
-    // Check for collisions with walls
-    if (pacManX < 0) pacManX = 0;
-    if (pacManX > canvas.width) pacManX = canvas.width;
-    if (pacManY < 0) pacManY = 0;
-    if (pacManY > canvas.height) pacManY = canvas.height;
+    // Check for collisions with walls (Pac-Man stays fully inside canvas)
+    const pacManRadius = 20;
+    if (pacManX < pacManRadius) pacManX = pacManRadius;
+    if (pacManX > canvas.width - pacManRadius) pacManX = canvas.width - pacManRadius;
+    if (pacManY < pacManRadius) pacManY = pacManRadius;
+    if (pacManY > canvas.height - pacManRadius) pacManY = canvas.height - pacManRadius;
 
     // Add more pellets if all are eaten
     if (pellets.length === 0) {
@@ -281,9 +342,12 @@ function initGame() {
     gameTimeLeft = gameTimeLimit;
     game.speed = initialGameSpeed;
     pellets = createPellets(pelletsCount);
-    bombs = createPellets(bombsCount);
-    livesPellets = createPellets(livesPelletsCount);
+    powerPellets = createPowerPellets(powerPelletsCount);
+    bombs = createBombs(bombsCount);
+    livesPellets = createLivesPellets(livesPelletsCount);
     ghosts = createGhosts(ghostsCount); // Use a function to create initial positions for ghosts
+    // Add more power pellets each level
+    powerPellets = powerPellets.concat(createPowerPellets(powerPelletsCount));
     clearInterval(gameTimerInterval);
     gameTimerInterval = setInterval(updateGameTimer, 1000);
     updateGameUI();
@@ -306,6 +370,11 @@ function endGame() {
     game.gameOver = true;
     gameOverText.style.display = 'block';
     gameOverSound.play();
+    // Save high score
+    const prevHighScore = localStorage.getItem('pacmanHighScore') || 0;
+    if (game.score > prevHighScore) {
+        localStorage.setItem('pacmanHighScore', game.score);
+    }
 }
 
 // Update the game UI
@@ -314,7 +383,10 @@ function updateGameUI() {
     levelElement.textContent = game.level;
     livesElement.textContent = game.lives;
     speedElement.textContent = game.speed;
-    timeLeftElement.textContent = Math.min(gameTimeLeft, gameTimeLimit);
+    timeLeftElement.textContent = gameTimeLeft > 0 ? gameTimeLeft : 0;
+    // High score
+    const highScore = localStorage.getItem('pacmanHighScore') || 0;
+    if (typeof highScoreElement !== 'undefined' && highScoreElement) highScoreElement.textContent = highScore;
 }
 
 // Create initial pellets, bombs, lives pellets, and ghosts
@@ -327,6 +399,30 @@ function createPellets(count) {
         });
     }
     return newPellets;
+}
+
+// Create initial bombs
+function createBombs(count) {
+    const newBombs = [];
+    for (let i = 0; i < count; i++) {
+        newBombs.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height
+        });
+    }
+    return newBombs;
+}
+
+// Create initial lives pellets
+function createLivesPellets(count) {
+    const newLivesPellets = [];
+    for (let i = 0; i < count; i++) {
+        newLivesPellets.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height
+        });
+    }
+    return newLivesPellets;
 }
 
 // Create initial ghosts
@@ -351,8 +447,8 @@ function levelUp() {
     gameTimeLeft = Math.min(gameTimeLeft + levelUpExtraTime, gameTimeLimit);
     levelUpSound.play();
     // Add more bombs and lives pellets each level
-    bombs = bombs.concat(createPellets(bombsCount));
-    livesPellets = livesPellets.concat(createPellets(livesPelletsCount));
+    bombs = bombs.concat(createBombs(bombsCount));
+    livesPellets = livesPellets.concat(createLivesPellets(livesPelletsCount));
 }
 
 // Start the game loop

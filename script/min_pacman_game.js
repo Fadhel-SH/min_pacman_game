@@ -149,11 +149,25 @@ function gameLoop() {
 function drawGame() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Draw Pac-Man
+    // Animate Pac-Man mouth
+    ctx.save();
+    ctx.translate(pacManX, pacManY);
+    let mouthOpen = Math.abs(Math.sin(Date.now() / 150)) * 0.5 + 0.2;
+    let startAngle = 0.25 * Math.PI * mouthOpen;
+    let endAngle = 2 * Math.PI - startAngle;
+    let directionAngle = 0;
+    if (pacManDirection === 'right') directionAngle = 0;
+    if (pacManDirection === 'left') directionAngle = Math.PI;
+    if (pacManDirection === 'up') directionAngle = -0.5 * Math.PI;
+    if (pacManDirection === 'down') directionAngle = 0.5 * Math.PI;
+    ctx.rotate(directionAngle);
     ctx.fillStyle = PACMAN_COLOR;
     ctx.beginPath();
-    ctx.arc(pacManX, pacManY, PACMAN_RADIUS, 0, 2 * Math.PI);
+    ctx.arc(0, 0, PACMAN_RADIUS, startAngle, endAngle, false);
+    ctx.lineTo(0, 0);
+    ctx.closePath();
     ctx.fill();
+    ctx.restore();
 
     // Draw the pellets
     ctx.fillStyle = PELLET_COLOR;
@@ -191,12 +205,32 @@ function drawGame() {
         ctx.fill();
     }
 
-    // Draw the ghosts
+    // Draw the ghosts with animated eyes
     for (let ghost of ghosts) {
-        ctx.beginPath();
+        ctx.save();
+        ctx.translate(ghost.x, ghost.y);
         ctx.fillStyle = ghostsEdible ? GHOST_EDIBLE_COLOR : GHOST_COLOR;
-        ctx.arc(ghost.x, ghost.y, GHOST_RADIUS, 0, 2 * Math.PI);
+        ctx.beginPath();
+        ctx.arc(0, 0, GHOST_RADIUS, 0, 2 * Math.PI);
         ctx.fill();
+        // Eyes
+        ctx.fillStyle = 'white';
+        ctx.beginPath();
+        ctx.arc(-5, -5, 4, 0, 2 * Math.PI);
+        ctx.arc(5, -5, 4, 0, 2 * Math.PI);
+        ctx.fill();
+        // Pupils follow Pac-Man
+        let dx = pacManX - ghost.x;
+        let dy = pacManY - ghost.y;
+        let dist = Math.hypot(dx, dy);
+        let px = dist > 0 ? (dx / dist) * 2 : 0;
+        let py = dist > 0 ? (dy / dist) * 2 : 0;
+        ctx.fillStyle = 'black';
+        ctx.beginPath();
+        ctx.arc(-5 + px, -5 + py, 1.5, 0, 2 * Math.PI);
+        ctx.arc(5 + px, -5 + py, 1.5, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.restore();
     }
     // Check for collisions with power pellets
     for (let i = 0; i < powerPellets.length; i++) {

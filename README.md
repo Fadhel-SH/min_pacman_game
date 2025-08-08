@@ -7,13 +7,20 @@
 ## Description
 A Pacman game developed using HTML, CSS, and JavaScript. The project includes classic gameplay elements, such as pellets, ghosts, bombs, and lives, with an added twist of ghosts changing direction and fleeing upon catching Pac-Man. The game features dynamic levels, increasing speed, and various power-ups. This project was created to demonstrate JavaScript game development skills.
 
+**Latest Features:**
+- Multiple maze layouts with wall collision
+- Power pellets (make ghosts edible for bonus points)
+- High score tracking (saved in browser)
+- Pac-Man mouth animation and ghost eye movement
+- Touch controls for mobile play
+
 ## How to play
 To play the game:
-1. Open `index.html` in your web browser.
-2. Use the arrow keys to move Pac-Man.
+1. Open `index.html` in your web browser or visit the [live site](https://fadhel-sh.github.io/min_pacman_game/).
+2. Use the arrow keys or on-screen buttons to move Pac-Man.
 3. Press 'P' to pause or resume the game.
-4. Press 'R' to restart the game.
-5. Avoid ghosts, collect pellets, and enjoy the game!
+4. Press 'R' or the ⟳ button to restart the game.
+5. Avoid ghosts, collect pellets, eat power pellets to chase ghosts, and enjoy the game!
 
 ## Technologies used
 - **HTML**
@@ -32,8 +39,9 @@ To play the game:
 
 
 ## Future Updates
-- Add new levels with different layouts.
-- Implement mobile touch controls.
+- More maze layouts and obstacles
+- Smarter ghost AI
+- More sound and visual effects
 
 ## Credits
 - Game sounds: [pixabay.com](https://pixabay.com/)

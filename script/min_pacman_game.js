@@ -320,9 +320,12 @@ function updateGhosts() {
                 ghost.fleeing = false;
             }
         } else {
-            // Move the ghost towards Pac-Man
-            const dx = pacManX - ghost.x;
-            const dy = pacManY - ghost.y;
+            // Smarter movement: chase Pac-Man with some randomness
+            let dx = pacManX - ghost.x;
+            let dy = pacManY - ghost.y;
+            // Add randomness to direction
+            dx += (Math.random() - 0.5) * 40;
+            dy += (Math.random() - 0.5) * 40;
             const distance = Math.hypot(dx, dy);
             if (distance > 0) {
                 ghost.x += (dx / distance) * ghostSpeed;
